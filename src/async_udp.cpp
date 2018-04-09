@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
@@ -89,7 +89,7 @@ void start() {
 	try {
 		boost::asio::io_service service;
 		Server server(service);
-		service.run(); // ×¢Òâ£ºÒ»¶¨Òªµ÷ÓÃ run()º¯Êı
+		service.run(); // æ³¨æ„ï¼šä¸€å®šè¦è°ƒç”¨ run()å‡½æ•°
 	}
 	catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;

@@ -1,24 +1,20 @@
-#include "screen_capture.hpp"
-
-#pragma comment(lib, "GdiPlus.lib")
-
-using namespace std;
+ï»¿#include "screen_capture.hpp"
 
 
-wstring GetAppPathW()
+std::wstring GetAppPathW()
 {
 	wchar_t szExePath[MAX_PATH] = { 0 };
 	GetModuleFileNameW(NULL, szExePath, MAX_PATH);
 	wchar_t *pstr = wcsrchr(szExePath, '\\');
 	memset(pstr + 1, 0, 2);
-	wstring strAppPath(szExePath);
+	std::wstring strAppPath(szExePath);
 	return strAppPath;
 }
 
 ScreenCapture::ScreenCapture()
 {
-	m_desktop = std::make_shared<CWnd>(CWnd::GetDesktopWindow());
-	m_dc = std::make_shared<CDC>(m_desktop->GetDC());
+	m_desktop = std::shared_ptr<CWnd>(CWnd::GetDesktopWindow());
+	m_dc = std::shared_ptr<CDC>(m_desktop->GetDC());
 }
 
 ScreenCapture::~ScreenCapture()
@@ -31,33 +27,33 @@ void ScreenCapture::Capture()
 	CRect rect;
 	CBitmap bmp;
 
-	//»ñÈ¡´°¿ÚµÄ´óĞ¡  
+	//è·å–çª—å£çš„å¤§å°  
 	m_desktop->GetClientRect(&rect);
 	bmp.CreateCompatibleBitmap(m_dc.get(), rect.Width(), rect.Height());
 
-	//´´½¨Ò»¸ö¼æÈİµÄÄÚ´æ»­°å  
+	//åˆ›å»ºä¸€ä¸ªå…¼å®¹çš„å†…å­˜ç”»æ¿  
 	CDC memory_dc;
 	memory_dc.CreateCompatibleDC(m_dc.get());
 
 	CBitmap *p_bmp = memory_dc.SelectObject(&bmp);
 	memory_dc.BitBlt(0, 0, rect.Width(), rect.Height(), m_dc.get(), 0, 0, SRCCOPY);
 
-	//»ñÈ¡Êó±êÎ»ÖÃ£¬È»ºóÌí¼ÓÊó±êÍ¼Ïñ  
+	//è·å–é¼ æ ‡ä½ç½®ï¼Œç„¶åæ·»åŠ é¼ æ ‡å›¾åƒ  
 	CPoint point;
 	GetCursorPos(&point);
 	HICON hinco = (HICON)GetCursor();
 	memory_dc.DrawIcon(point.x - 10, point.y - 10, hinco);
-	//Ñ¡ÖĞÔ­À´µÄ»­±Ê  
+	//é€‰ä¸­åŸæ¥çš„ç”»ç¬”  
 	memory_dc.SelectObject(p_bmp);
 
 	BITMAP bit;
 	bmp.GetBitmap(&bit);
 	
-	//¶¨Òå Í¼Ïñ´óĞ¡£¨µ¥Î»£ºbyte£©  
+	//å®šä¹‰ å›¾åƒå¤§å°ï¼ˆå•ä½ï¼šbyteï¼‰  
 	DWORD size = bit.bmWidthBytes * bit.bmHeight;
 	LPSTR lpdata = (LPSTR)GlobalAlloc(GPTR, size);
 
-	//ºóÃæÊÇ´´½¨Ò»¸öbmpÎÄ¼şµÄ±ØĞëÎÄ¼şÍ·  
+	//åé¢æ˜¯åˆ›å»ºä¸€ä¸ªbmpæ–‡ä»¶çš„å¿…é¡»æ–‡ä»¶å¤´  
 	BITMAPINFOHEADER pbitinfo;
 	pbitinfo.biBitCount = 24;
 	pbitinfo.biClrImportant = 0;
@@ -74,14 +70,13 @@ void ScreenCapture::Capture()
 		&pbitinfo, DIB_RGB_COLORS);
 
 
-
 	BITMAPFILEHEADER bfh;
 	bfh.bfReserved1 = bfh.bfReserved2 = 0;
 	bfh.bfType = ((WORD)('M' << 8) | 'B');
 	bfh.bfSize = size + 54;
 	bfh.bfOffBits = 54;
 
-	//Ğ´ÈëÎÄ¼ş  
+	//å†™å…¥æ–‡ä»¶  
 	CFile file;
 	CString strFileName(GetAppPathW().c_str());
 	strFileName += _T("ScreenShot\\");

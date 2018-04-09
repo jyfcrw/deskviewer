@@ -6,7 +6,10 @@
 
 #include <string>
 #include <memory>
+
 #include <afxwin.h>
+#include <GdiPlus.h>  
+#pragma comment(lib,"GdiPlus.lib") 
 
 class ScreenCapture {
 public:
